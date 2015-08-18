@@ -1077,10 +1077,7 @@ inline static int igbinary_serialize_array_ref(struct igbinary_serialize_data *i
 	uint32_t *i = &t;
 	zend_value key = { 0 };
 
-	if (Z_TYPE_P(z) == IS_ARRAY) {
-		key = z->value;
-		return 1;
-	} else if (Z_REFCOUNTED_P(z)) {
+	if (Z_REFCOUNTED_P(z)) {
 		key = z->value;
 	} else if (object && Z_TYPE_P(z) == IS_OBJECT) {
 		key.obj = Z_OBJ_P(z);
@@ -1923,20 +1920,20 @@ inline static int igbinary_unserialize_array(struct igbinary_unserialize_data *i
 	if ((flags & WANT_OBJECT) == 0) {
 		array_init_size(z, n + 1);
 
-		if (flags & WANT_REF) {
-			/* references */
-			if (igsd->references_count + 1 >= igsd->references_capacity) {
-				while (igsd->references_count + 1 >= igsd->references_capacity) {
-					igsd->references_capacity *= 2;
-				}
-
-				igsd->references = erealloc(igsd->references, sizeof(igsd->references[0]) * igsd->references_capacity);
-				if (igsd->references == NULL)
-					return 1;
+		/* references */
+		if (igsd->references_count + 1 >= igsd->references_capacity) {
+			while (igsd->references_count + 1 >= igsd->references_capacity) {
+				igsd->references_capacity *= 2;
 			}
 
-			/*ZVAL_COPY_VALUE(IGB_REF_VAL(igsd, igsd->references_count++), z);*/
-			IGB_REF_VAL(igsd, igsd->references_count++) = z;
+			igsd->references = erealloc(igsd->references, sizeof(igsd->references[0]) * igsd->references_capacity);
+			if (igsd->references == NULL)
+				return 1;
+		}
+
+		/*ZVAL_COPY_VALUE(IGB_REF_VAL(igsd, igsd->references_count++), z);*/
+		IGB_REF_VAL(igsd, igsd->references_count++) = z;
+		if (flags & WANT_REF) {
 			ZVAL_MAKE_REF(z);
 			ZVAL_DEREF(z);
 		}
