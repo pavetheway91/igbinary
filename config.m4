@@ -43,6 +43,10 @@ if test "$PHP_IGBINARY" != "no"; then
     apc_inc_path="$phpincludedir"
     AC_MSG_RESULT([APCU in $apc_inc_path])
     AC_DEFINE(HAVE_APCU_SUPPORT,1,[Whether to enable apcu support])
+  elif test -f "$abs_builddir/ext/apcu/apc_serializer.h"; then
+    apc_inc_path="$abs_builddir"
+    AC_MSG_RESULT([APCU in $apc_inc_path])
+    AC_DEFINE(HAVE_APCU_SUPPORT,1,[Whether to enable apcu support])
   elif test "$subdir" == src/php5 && test -f "$phpincludedir/ext/apc/apc_serializer.h"; then
     apc_inc_path="$phpincludedir"
     AC_MSG_RESULT([APC in $apc_inc_path])
